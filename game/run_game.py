@@ -58,12 +58,12 @@ while cond_menu:
 	pygame.display.update()
 # end menu loop --------------------------------------------------------
 
-bombero = Bombero(300,300)
+
 dx, dy = 0,0
 luz_bombero = pygame.image.load("imagenes/linterna.png")
 background_game = pygame.image.load("imagenes/background_game.png").convert()
-
 paredes = []
+
 
 # Convierte en objetos el nivel de arriba. W = wall, E = exit
 x = y = 0
@@ -77,8 +77,9 @@ for row in level1:
         x += 32
     y += 32
     x = 0
-    
-    
+
+bombero = Bombero(300,300,paredes)
+
 # juego loop -----------------------------------------------------------
 while cond_jugar:
 	filtro = pygame.surface.Surface((1024,700))
@@ -98,6 +99,8 @@ while cond_jugar:
 		bombero.mover(0,-3)
 	if key[pygame.K_DOWN]:
 		bombero.mover(0,3)
+		
+
 	#actualizar
 	reloj.tick(60)
 	bombero.actualizar()
