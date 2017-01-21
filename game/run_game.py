@@ -15,16 +15,14 @@ ventana = pygame.display.set_mode(medidas_pantalla)
 pygame.display.set_caption("game")
 reloj = pygame.time.Clock()
 
-cond_menu = True
-cond_jugar = True
-
 #flecha menu
-posX, posY = 200,450
+posX, posY = 750,390
 flecha_imagen = pygame.image.load("imagenes/sprite.png").convert_alpha()
 seno = 0
+
+cond_menu = True
+cond_jugar = True
 background_menu = pygame.image.load("imagenes/background_menu.png")
-
-
 
 # menu loop ----------------------------------------------------------
 while cond_menu:
@@ -37,15 +35,14 @@ while cond_menu:
 			pygame.quit()
 			sys.exit()
 		if e.type == pygame.KEYDOWN and e.key == pygame.K_RETURN:
-			if posY == 450:
+			if posY == 390:
 				cond_menu = False
 			else:
 				pygame.quit()
-				sys.exit()
-		
+				sys.exit()	
 	key = pygame.key.get_pressed()
 	if key[pygame.K_UP]:
-		posY = 450
+		posY = 390
 	if key[pygame.K_DOWN]:
 		posY = 550
 			
@@ -59,13 +56,20 @@ while cond_menu:
 # end menu loop --------------------------------------------------------
 
 
+# movimiento bombero
 dx, dy = 0,0
+# animaciones
+anim_linterna = 10
+change_linterna = True
+humo = pygame.image.load("imagenes/humo.png").convert_alpha()
 luz_bombero = pygame.image.load("imagenes/linterna.png")
+anim_humo = 0
+bool_humo = True
+
 background_game = pygame.image.load("imagenes/background_game.png").convert()
 paredes = []
 
-
-# Convierte en objetos el nivel de arriba. W = wall, E = exit
+# Convierte en objetos el nivel. W = wall
 x = y = 0
 for row in level1:
     for col in row:
@@ -77,23 +81,18 @@ for row in level1:
         x += 32
     y += 32
     x = 0
-
-bombero2 = Bombero(750,50,paredes)
+    
+# inicializamos personajes
 bombero = Bombero(300,300,paredes)
+#cambiarlo a rescates (ojo con el sonido)
+bombero2 = Bombero(750,50,paredes)
 
-sonido_grito = pygame.mixer.Sound("sonidos/wind1.wav")
 # start playing the sound and remember on which channel it is being played
+sonido_grito = pygame.mixer.Sound("sonidos/wind1.wav")
 channel = sonido_grito.play()
 
 # juego loop -----------------------------------------------------------
 while cond_jugar:
-	filtro = pygame.surface.Surface((1024,700))
-
-	# variable que guarda la distancia entre el bombero y quien tiene que rescatar
-	# devuelve (x, y)
-	distancia_persona = bombero.calcular_distancia(bombero2);
-	esta_cerca = abs(distancia_persona[0]) + abs(distancia_persona[1])
-	
 	#procesar eventos
 	for e in pygame.event.get():
 		if e.type == pygame.QUIT:
@@ -109,7 +108,18 @@ while cond_jugar:
 		bombero.mover(0,-3)
 	if key[pygame.K_DOWN]:
 		bombero.mover(0,3)
+		
+	filtro = pygame.surface.Surface((1024,700))
 	
+	#actualizar
+	reloj.tick(60)
+	bombero.actualizar()
+	
+	# variable que guarda la distancia entre el bombero y quien tiene que rescatar
+	# devuelve (x, y)
+	distancia_persona = bombero.calcular_distancia(bombero2);
+	esta_cerca = abs(distancia_persona[0]) + abs(distancia_persona[1])
+	# modificacion del sonido segun distancia
 	if (distancia_persona[0] < -150):
 		#solamente se escucha por el canal izquierdo
 		channel.set_volume(1, 0)
@@ -119,7 +129,6 @@ while cond_jugar:
 	else:
 		#solamente se escucha por los dos canales
 		channel.set_volume(1, 1)
-
 	if (esta_cerca > 1500):
 		sonido_grito.set_volume(0.1)
 	elif (esta_cerca > 1250 and esta_cerca < 1500):
@@ -135,18 +144,40 @@ while cond_jugar:
 	else:
 		sonido_grito.set_volume(0.9)
 
-	#actualizar
-	reloj.tick(60)
-	bombero.actualizar()
-	#dibujar
+	# Animacion de la luz del bombero
+	anim_linterna -= 1
+	if anim_linterna < 0:
+		anim_linterna = 10
+		change_linterna = not change_linterna
+	if change_linterna:
+		luz_bombero = pygame.image.load("imagenes/linterna2.png")
+	else:
+		luz_bombero = pygame.image.load("imagenes/linterna.png")
+	
+	# Animacion humo sobre la pantalla
+	if bool_humo:
+		anim_humo -= 1
+	else:
+		anim_humo += 1
+	if anim_humo == -500:
+		bool_humo = False
+		anim_humo = -499
+	if anim_humo == 0:
+		bool_humo = True
+		anim_humo = -1
+	print(anim_humo,bool_humo)
+	
+	
+	# DIBUJAR
 	ventana.blit(background_game,(0,0))
 	for p in paredes:
 		p.dibujar(ventana)
-	filtro.fill(blanco)
+	filtro.fill((250,250,250))
 	filtro.blit(luz_bombero,map(lambda x: x-120,bombero.get_pos()))
 	ventana.blit(filtro,(0,0),special_flags=pygame.BLEND_RGBA_SUB)
 	bombero.dibujar(ventana)
 	bombero2.dibujar(ventana)
+	ventana.blit(humo,(anim_humo,0))
 
 
 	
