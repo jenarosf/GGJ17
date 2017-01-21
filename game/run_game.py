@@ -4,7 +4,8 @@
 import pygame, sys, os, math
 from modulos.colors import *
 from modulos.bomber import *
-
+from modulos.paredes import *
+from modulos.levels import *
 
 os.environ["SDL_VIDEO_CENTERED"] = "1"
 pygame.init()
@@ -19,22 +20,10 @@ cond_jugar = True
 
 #flecha menu
 posX, posY = 200,450
-flecha_imagen = pygame.image.load("imagenes/sprite.png")
+flecha_imagen = pygame.image.load("imagenes/sprite.png").convert_alpha()
 seno = 0
 background_menu = pygame.image.load("imagenes/background_menu.png")
 
-# class paredes ------------------------------------
-class Pared(pygame.sprite.Sprite):
-	def __init__(self,pos):
-		pygame.sprite.Sprite.__init__(self)
-		self.imagen = pygame.image.load("imagenes/pared.png")
-		self.x = pos[0]
-		self.y = pos[1]
-	
-	def dibujar(self,ventana):
-		ventana.blit(self.imagen,(self.x,self.y))
-	
-# class paredes ------------------------------------
 
 
 # menu loop ----------------------------------------------------------
@@ -75,31 +64,10 @@ luz_bombero = pygame.image.load("imagenes/linterna.png")
 background_game = pygame.image.load("imagenes/background_game.png").convert()
 
 paredes = []
-level = [
-"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
-"W                  WWWWWWWWWWWW",
-"W         WWWWWW   WWWWWWWWWWWW",
-"W   WWWW       W   WWWWWWWWWWWW",
-"W   W        WWWW  WWWWWWWWWWWW",
-"W WWW  WWWW        WWWWWWWWWWWW",
-"W   W     W W      WWWWWWWWWWWW",
-"W   W     W   WWW             W",
-"W   WWW WWW   W W  WWWWWWWWWWWW",
-"W     W   W   W W  WWWWWWWWWWWW",
-"WWW   W   WWWWW W  WWWWWWWWWWWW",
-"W W      WW        WWWWWWWWWWWW",
-"W W   WWWW   WWW   WWWWWWWWWWWW",
-"W     W    E   W   WWWWWWWWWWWW",
-"WWWWWWWWWWWWW WWWWWWWWWWWWWWWWW",
-"WWWWWWWWWWWWW WWWWWWWWWWWWWWWWW",
-"WWWWWWWWWWWWW WWWWWWWWWWWWWWWWW",
-"WWWWWWWWWWWWW WWWWWWWWWWWWWWWWW",
-"WWWWWWWWWWWWW WWWWWWWWWWWWWWWWW",
-"WWWWWWWWWWWWW WWWWWWWWWWWWWWWWW",
-]
+
 # Convierte en objetos el nivel de arriba. W = wall, E = exit
 x = y = 0
-for row in level:
+for row in level1:
     for col in row:
         if col == "W":
             pp = Pared((x, y))
@@ -109,9 +77,9 @@ for row in level:
         x += 32
     y += 32
     x = 0
+    
+    
 # juego loop -----------------------------------------------------------
-
-
 while cond_jugar:
 	filtro = pygame.surface.Surface((1024,700))
 
