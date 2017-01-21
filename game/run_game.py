@@ -78,12 +78,22 @@ for row in level1:
     y += 32
     x = 0
 
+bombero2 = Bombero(750, 50)
 bombero = Bombero(300,300,paredes)
+
+sonido_grito = pygame.mixer.Sound("sonidos/wind1.wav")
+# start playing the sound and remember on which channel it is being played
+channel = sonido_grito.play()
 
 # juego loop -----------------------------------------------------------
 while cond_jugar:
 	filtro = pygame.surface.Surface((1024,700))
 
+	# variable que guarda la distancia entre el bombero y quien tiene que rescatar
+	# devuelve (x, y)
+	distancia_persona = bombero.calcular_distancia(bombero2);
+	esta_cerca = abs(distancia_persona[0]) + abs(distancia_persona[1])
+	
 	#procesar eventos
 	for e in pygame.event.get():
 		if e.type == pygame.QUIT:
@@ -99,7 +109,31 @@ while cond_jugar:
 		bombero.mover(0,-3)
 	if key[pygame.K_DOWN]:
 		bombero.mover(0,3)
-		
+	
+	if (distancia_persona[0] < -150):
+		#solamente se escucha por el canal izquierdo
+		channel.set_volume(1, 0)
+	elif (distancia_persona[0] > 150):
+		#solamente se escucha por el canal derecho
+		channel.set_volume(0, 1)
+	else:
+		#solamente se escucha por los dos canales
+		channel.set_volume(1, 1)
+
+	if (esta_cerca > 1500):
+		sonido_grito.set_volume(0.1)
+	elif (esta_cerca > 1250 and esta_cerca < 1500):
+		sonido_grito.set_volume(0.3)
+	elif (esta_cerca > 1000 and esta_cerca < 1250):
+		sonido_grito.set_volume(0.5)
+	elif (esta_cerca > 750 and esta_cerca < 1000):
+		sonido_grito.set_volume(0.6)
+	elif (esta_cerca > 500 and esta_cerca < 750 ):
+		sonido_grito.set_volume(0.7)
+	elif (esta_cerca > 250 and esta_cerca < 500):
+		sonido_grito.set_volume(0.8)
+	else:
+		sonido_grito.set_volume(0.9)
 
 	#actualizar
 	reloj.tick(60)
@@ -112,6 +146,8 @@ while cond_jugar:
 	filtro.blit(luz_bombero,map(lambda x: x-120,bombero.get_pos()))
 	ventana.blit(filtro,(0,0),special_flags=pygame.BLEND_RGBA_SUB)
 	bombero.dibujar(ventana)
+	bombero2.dibujar(ventana)
+
 
 	
 	pygame.display.flip()
