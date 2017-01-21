@@ -33,15 +33,16 @@ class Bombero(pygame.sprite.Sprite):
 	def mover(self,dx,dy):
 		self.rect.x = self.rect.x + dx
 		self.rect.y = self.rect.y + dy
-		if pygame.sprite.collide_rect(self,self.listap[1]):
-			if dx > 0:
-				self.rect.right = self.listap[1].rect.left
-			if dx < 0:
-				self.rect.left = self.listap[1].rect.right
-			if dy > 0:
-				self.rect.bottom = self.listap[1].rect.top
-			if dy < 0:
-				self.rect.top = self.listap[1].rect.bottom
+		for p in self.listap:
+			if pygame.sprite.collide_rect(self,p):
+				if dx > 0:
+					self.rect.right = p.rect.left
+				if dx < 0:
+					self.rect.left = p.rect.right
+				if dy > 0:
+					self.rect.bottom = p.rect.top
+				if dy < 0:
+					self.rect.top = p.rect.bottom
 			
 
 	def get_pos(self):
