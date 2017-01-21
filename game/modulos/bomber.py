@@ -37,3 +37,6 @@ class Bombero(pygame.sprite.Sprite):
 
 	def get_pos(self):
 		return (self.rect.x,self.rect.y)
+	
+	def calcular_distancia(self, persona):
+		return (self.x-persona.x, self.y-persona.y)
