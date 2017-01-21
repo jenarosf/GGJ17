@@ -164,15 +164,14 @@ while cond_jugar:
 		anim_humo = -499
 	if anim_humo == 0:
 		bool_humo = True
-		anim_humo = -1
-	print(anim_humo,bool_humo)
+		anim_humo = -10
 	
 	
 	# DIBUJAR
 	ventana.blit(background_game,(0,0))
 	for p in paredes:
 		p.dibujar(ventana)
-	filtro.fill((250,250,250))
+	filtro.fill((255,255,255))
 	filtro.blit(luz_bombero,map(lambda x: x-120,bombero.get_pos()))
 	ventana.blit(filtro,(0,0),special_flags=pygame.BLEND_RGBA_SUB)
 	bombero.dibujar(ventana)
