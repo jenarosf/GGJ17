@@ -78,7 +78,7 @@ for row in level1:
     y += 32
     x = 0
 
-bombero2 = Bombero(750, 50)
+bombero2 = Bombero(750,50,paredes)
 bombero = Bombero(300,300,paredes)
 
 sonido_grito = pygame.mixer.Sound("sonidos/wind1.wav")
