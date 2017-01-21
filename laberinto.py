@@ -10,7 +10,7 @@ import pygame
 class Player(object):
     # CONSTRUCTOR, lo crea como un cuadrado
     def __init__(self):
-        self.rect = pygame.Rect(32, 32, 16, 16)
+        self.rect = pygame.Rect(32, 32, 32, 32)
     # Funcion wrapper para mover el personaje
     def move(self, dx, dy):
         if dx != 0:
@@ -20,11 +20,11 @@ class Player(object):
             self.move_single_axis(0, dy)
 
     # mueve y revisa colision
-    def move_single_axis(self, dx, dy):    
+    def move_single_axis(self, dx, dy):
         # Movemos el personaje
         self.rect.x += dx
         self.rect.y += dy
-        # Si colisionamos con un muro 
+        # Si colisionamos con un muro
         # ¡¡¡¡REVISAR!!!!
         for wall in walls:
             if self.rect.colliderect(wall.rect):
@@ -44,7 +44,7 @@ class Wall(object):
     def __init__(self, pos):
         # agrega la instancia en la lista de paredes
         walls.append(self)
-        self.rect = pygame.Rect(pos[0], pos[1], 16, 16)
+        self.rect = pygame.Rect(pos[0], pos[1], 32, 32)
 # end class
 # -------------------------------------------------------
 
@@ -54,7 +54,7 @@ pygame.init()
 
 # Seteamos el display
 pygame.display.set_caption("Llega al cuadrado rojo!")
-screen = pygame.display.set_mode((520, 340))
+screen = pygame.display.set_mode((1024, 700))
 
 clock = pygame.time.Clock()
 walls = [] # List to hold the walls
@@ -62,21 +62,28 @@ player = Player() # Create the player
 
 # Holds the level layout in a list of strings.
 level = [
-"WWWWWWWWWWWWWWWWWWWW",
-"W                  W",
-"W         WWWWWW   W",
-"W   WWWW       W   W",
-"W   W        WWWW  W",
-"W WWW  WWWW        W",
-"W   W     W W      W",
-"W   W     W   WWW WW",
-"W   WWW WWW   W W  W",
-"W     W   W   W W  W",
-"WWW   W   WWWWW W  W",
-"W W      WW        W",
-"W W   WWWW   WWW   W",
-"W     W    E   W   W",
-"WWWWWWWWWWWWWWWWWWWW",
+"W--------WWWWWWWWWWWWWWWWWWWWWW",
+"W--------W-------W----W-------W",
+"W--------W-------W----W-------W",
+"W--------W-------W----W-------W",
+"W--------W-------W----W-------W",
+"W--------W-------W----W-------W",
+"W--------W-------W------------W",
+"W--------WWWWWW--W------------W",
+"W                W    WWWWWWWWW",
+"W-----------------------------W",
+"W-----------------------------W",
+"W--------WWWW--WWWWW--W-------W",
+"W--------W-----W------W-------W",
+"W--------W-----W------W-------W",
+"W--------W-----W------W-------W",
+"W--------W-----W------W-------W",
+"W--WWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+"W------------------------------",
+"W------------------------------",
+"W--W--------W------------------",
+"---WWWWWWWWWWWWWWW------------E",
+
 ]
 
 # Convierte en objetos el nivel de arriba. W = wall, E = exit
@@ -86,24 +93,24 @@ for row in level:
         if col == "W":
             Wall((x, y))
         if col == "E":
-            end_rect = pygame.Rect(x, y, 16, 16)
-        x += 16
-    y += 16
+            end_rect = pygame.Rect(x, y, 32, 32)
+        x += 32
+    y += 32
     x = 0
 
 # LOOP
 running = True
 while running:
-    
+
     # fps
     clock.tick(60)
-    
+
     for e in pygame.event.get():
         if e.type == pygame.QUIT:
             running = False
         if e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE:
             running = False
-    
+
     # Movimiento del personaje
     key = pygame.key.get_pressed()
     if key[pygame.K_LEFT]:
@@ -114,11 +121,11 @@ while running:
         player.move(0, -2)
     if key[pygame.K_DOWN]:
         player.move(0, 2)
-    
+
     # Si llega al cuadrado, sale de sistema con un mensaje de ganaste
     if player.rect.colliderect(end_rect):
         raise SystemExit, "You win!"
-    
+
     # Dibuja la escena
     screen.fill((0, 0, 0))
     for wall in walls:
