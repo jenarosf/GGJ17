@@ -149,10 +149,10 @@ fuente = pygame.font.Font("fuente/fuente.ttf", 22)
 run = fuente.render("RUN", 2, cyan)
 bool_gameover = True
 
-
+tiempo_loco = pygame.time.get_ticks()/ 1000
 # juego loop -----------------------------------------------------------
 while cond_jugar:
-	tiempo = pygame.time.get_ticks() / 1000	
+	tiempo = (pygame.time.get_ticks() / 1000) - tiempo_loco
 	#procesar eventos
 	for e in pygame.event.get():
 		if e.type == pygame.QUIT:
