@@ -21,17 +21,14 @@ class Victima(pygame.sprite.Sprite):
     	self.rect = self.image.get_rect()
 
     	# generar coordenadas aleatorias
-    	x = random.randint(0, 950)
-    	y = random.randint(0, 660)
-        x32 = x / 32
-        y32 = y / 32
-        while level1[y32][x32] == "W":
-            x = random.randint(0, 950)
-            y = random.randint(0, 660)
-            x32 = x / 32
-            y32 = y / 32
-        self.rect.x = x
-        self.rect.y = y
+    	x = random.randint(0,30)
+    	y = random.randint(0,20)
+    	while level1[y][x] == "W":
+			x = random.randint(0,30)
+			y = random.randint(0,20)
+    	self.rect.x = x*32
+    	self.rect.y = y*32
+    	
 
     def dibujar(self,ventana):
     	ventana.blit(self.image,(self.rect.x,self.rect.y))
