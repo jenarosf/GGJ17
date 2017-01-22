@@ -34,7 +34,8 @@ class Bombero(pygame.sprite.Sprite):
 	def dibujar(self,ventana):
 		ventana.blit(self.image,(self.rect.x,self.rect.y))
 		
-	def actualizar(self):
+	def actualizar(self,paredes):
+		self.listap = paredes
 		self.dt_animacion -= 1
 		if (self.dt_animacion == 0):
 			self.dt_animacion = 7
@@ -42,6 +43,9 @@ class Bombero(pygame.sprite.Sprite):
 			if self.index >= len(self.rango):
 				self.index = 0
 			self.image = self.imagenes[self.rango[self.index]]
+
+	def quieto(self):
+		self.rango = [3]
 
 	def mover(self,dx,dy):
 		if dx == 0 and dy == 0:
@@ -73,3 +77,7 @@ class Bombero(pygame.sprite.Sprite):
 	
 	def calcular_distancia(self, persona):
 		return (self.rect.x-persona.rect.x, self.rect.y-persona.rect.y)
+		
+	def reset(self,x,y):
+		self.rect.x = x
+		self.rect.y = y

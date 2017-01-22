@@ -25,6 +25,11 @@ cond_menu = True
 cond_jugar = True
 background_menu = pygame.image.load("imagenes/background_menu.png")
 
+#musica menu
+pygame.mixer.music.load("sonidos/menu.mp3")
+pygame.mixer.music.play(-1,1)
+sonidoItem = pygame.mixer.Sound("sonidos/item.wav")
+
 # menu loop ----------------------------------------------------------
 while cond_menu:
 	#procesar eventos
@@ -43,8 +48,12 @@ while cond_menu:
 				sys.exit()	
 	key = pygame.key.get_pressed()
 	if key[pygame.K_UP]:
+		if not posY == 390:
+			sonidoItem.play()
 		posY = 390
 	if key[pygame.K_DOWN]:
+		if not posY == 550:
+			sonidoItem.play()
 		posY = 550
 			
 	#actualizar
@@ -78,23 +87,34 @@ for row in level1:
         if col == "W":
             pp = Pared((x, y))
             paredes.append(pp)
-        if col == "E":
-            end_rect = pygame.Rect(x, y, 32, 32)
         x += 32
     y += 32
     x = 0
-    
-# inicializamos personajes
-bombero = Bombero(300,300,paredes)
-#cambiarlo a rescates (ojo con el sonido)
-victima = Victima(paredes)
 
-# start playing the sound and remember on which channel it is being played
-sonido_grito = pygame.mixer.Sound("sonidos/wind1.wav")
-channel = sonido_grito.play()
+bombero_iniciox,bombero_inicioy = 32*2,32*20
+# inicializamos personajes
+bombero = Bombero(bombero_iniciox,bombero_inicioy,paredes)
+victima = Victima(paredes,1)
 
 # correr
 power_correr = 100
+
+# cantidad de victimas rescatadas
+rescates = 0
+level = 1
+
+pygame.mixer.music.stop()
+
+pygame.mixer.music.load("sonidos/juego.ogg")
+pygame.mixer.music.play(-1,1)
+pygame.mixer.music.set_volume(0.05)
+
+sonidoLogro = pygame.mixer.Sound("sonidos/victima.wav")
+sonidoLogro.set_volume(0.3)
+
+sonido_grito = pygame.mixer.Sound("sonidos/latidos.ogg")
+channel = sonido_grito.play(-1)
+sonido_grito.set_volume(1)
 
 # juego loop -----------------------------------------------------------
 while cond_jugar:
@@ -129,24 +149,48 @@ while cond_jugar:
 			power_correr -= 7
 		else:
 			bombero.mover(0,3)
-		
+	if not key[pygame.K_UP] and not key[pygame.K_DOWN] and not key[pygame.K_LEFT] and not key[pygame.K_RIGHT]:
+		bombero.quieto()
+	
 	filtro = pygame.surface.Surface((1024,700))
 	
 	#actualizar
 	reloj.tick(60)
-	bombero.actualizar()
+	bombero.actualizar(paredes)
+	victima.actualizar()
+	#chequear colisiones
+	if pygame.sprite.collide_rect(bombero,victima):
+		del victima
+		victima = Victima(paredes,level)
+		rescates += 1
 	
+	if rescates == 5:
+		level = 2 
+		rescates = 0
+		bombero.reset(bombero_iniciox,bombero_inicioy)
+		x = y = 0
+		for p in paredes:
+			del p
+		paredes = []
+		for row in level2:
+			for col in row:
+				if col == "W":
+					pp = Pared((x, y))
+					paredes.append(pp)
+				x += 32
+			y += 32
+			x = 0
 	# variable que guarda la distancia entre el bombero y quien tiene que rescatar
 	# devuelve (x, y)
 	distancia_persona = bombero.calcular_distancia(victima);
 	esta_cerca = abs(distancia_persona[0]) + abs(distancia_persona[1])
 	# modificacion del sonido segun distancia
-	if (distancia_persona[0] < -150):
+	if (distancia_persona[0] < -100):
 		#solamente se escucha por el canal izquierdo
-		channel.set_volume(1, 0)
-	elif (distancia_persona[0] > 150):
-		#solamente se escucha por el canal derecho
 		channel.set_volume(0, 1)
+	elif (distancia_persona[0] > 100):
+		#solamente se escucha por el canal derecho
+		channel.set_volume(1, 0)
 	else:
 		#solamente se escucha por los dos canales
 		channel.set_volume(1, 1)
@@ -186,7 +230,6 @@ while cond_jugar:
 	if anim_humo == 0:
 		bool_humo = True
 		anim_humo = -10
-	
 	if power_correr < 100:
 		power_correr += 0.5
 	
@@ -199,7 +242,7 @@ while cond_jugar:
 	filtro.fill((255,255,255))
 	filtro.blit(luz_bombero,map(lambda x: x-120,bombero.get_pos()))
 	ventana.blit(filtro,(0,0),special_flags=pygame.BLEND_RGBA_SUB)
-	#ventana.blit(humo,(anim_humo,0))
+	ventana.blit(humo,(anim_humo,0))
 	ventana.blit(hud,(0,665))
 
 
