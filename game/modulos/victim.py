@@ -44,7 +44,6 @@ class Victima(pygame.sprite.Sprite):
     		if self.index >= len(self.imagenes):
     			self.index = 0
     		self.image = self.imagenes[self.index]
-	print self.index
 
     def get_pos(self):
     	return (self.rect.x,self.rect.y)
