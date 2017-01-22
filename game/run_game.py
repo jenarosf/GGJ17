@@ -209,7 +209,7 @@ while cond_jugar:
 		del ondas
 		ondas = Ondas(victima.get_pos())
 		ver_ondas = False
-		tiempo_ondas = 100
+		tiempo_ondas = 700
 		sonidoLogro.play()
 	
 	if rescates == 5:
