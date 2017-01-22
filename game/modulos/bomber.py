@@ -9,7 +9,8 @@ def cargar_imagen(ruta):
 class Bombero(pygame.sprite.Sprite):
 	def __init__(self,inicioX,inicioY,listaparedes):
 		pygame.sprite.Sprite.__init__(self)
-		self.dt_animacion = 15
+		self.dt_animacion = 7
+		self.rango = [3]
 		self.imagenes = []
 		self.imagenes.append(cargar_imagen("imagenes/bombero1l.png"))
 		self.imagenes.append(cargar_imagen("imagenes/bombero2l.png"))
@@ -24,7 +25,7 @@ class Bombero(pygame.sprite.Sprite):
 		self.imagenes.append(cargar_imagen("imagenes/bombero2d.png"))
 		self.imagenes.append(cargar_imagen("imagenes/bombero3d.png"))
 		self.index = 0
-		self.image = self.imagenes[self.index]
+		self.image = self.imagenes[self.rango[0]]
 		self.rect = self.image.get_rect()
 		self.rect.x, self.rect.y = inicioX, inicioY
 		self.listap = listaparedes
@@ -36,13 +37,23 @@ class Bombero(pygame.sprite.Sprite):
 	def actualizar(self):
 		self.dt_animacion -= 1
 		if (self.dt_animacion == 0):
-			self.dt_animacion = 15
+			self.dt_animacion = 7
 			self.index += 1
-			if self.index >= len(self.imagenes):
+			if self.index >= len(self.rango):
 				self.index = 0
-			self.image = self.imagenes[self.index]
+			self.image = self.imagenes[self.rango[self.index]]
 
 	def mover(self,dx,dy):
+		if dx == 0 and dy == 0:
+			self.rango = [3]
+		if dx < 0:
+			self.rango = [0,1,2]
+		if dx > 0:
+			self.rango = [6,7,8]
+		if dy < 0:
+			self.rango = [3,4,5]
+		if dy > 0:
+			self.rango = [9,10,11]
 		self.rect.x = self.rect.x + dx
 		self.rect.y = self.rect.y + dy
 		for p in self.listap:
