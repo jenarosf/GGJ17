@@ -3,7 +3,7 @@
 import pygame
 
 def cargar_imagen(ruta):
-	imagen = pygame.image.load(ruta).convert_alpha()
+	imagen = pygame.image.load(ruta)
 	return imagen
 	
 class Bombero(pygame.sprite.Sprite):
@@ -11,12 +11,24 @@ class Bombero(pygame.sprite.Sprite):
 		pygame.sprite.Sprite.__init__(self)
 		self.dt_animacion = 15
 		self.imagenes = []
-		self.imagenes.append(cargar_imagen("imagenes/bombero.png"))
+		self.imagenes.append(cargar_imagen("imagenes/bombero1l.png"))
+		self.imagenes.append(cargar_imagen("imagenes/bombero2l.png"))
+		self.imagenes.append(cargar_imagen("imagenes/bombero3l.png"))
+		self.imagenes.append(cargar_imagen("imagenes/bombero1u.png"))
+		self.imagenes.append(cargar_imagen("imagenes/bombero2u.png"))
+		self.imagenes.append(cargar_imagen("imagenes/bombero3u.png"))
+		self.imagenes.append(cargar_imagen("imagenes/bombero1r.png"))
+		self.imagenes.append(cargar_imagen("imagenes/bombero2r.png"))
+		self.imagenes.append(cargar_imagen("imagenes/bombero3r.png"))
+		self.imagenes.append(cargar_imagen("imagenes/bombero1d.png"))
+		self.imagenes.append(cargar_imagen("imagenes/bombero2d.png"))
+		self.imagenes.append(cargar_imagen("imagenes/bombero3d.png"))
 		self.index = 0
 		self.image = self.imagenes[self.index]
 		self.rect = self.image.get_rect()
 		self.rect.x, self.rect.y = inicioX, inicioY
 		self.listap = listaparedes
+		self.time = 5
 		
 	def dibujar(self,ventana):
 		ventana.blit(self.image,(self.rect.x,self.rect.y))

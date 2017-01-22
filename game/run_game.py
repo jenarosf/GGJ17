@@ -6,6 +6,7 @@ from modulos.colors import *
 from modulos.bomber import *
 from modulos.paredes import *
 from modulos.levels import *
+from modulos.victim import *
 
 os.environ["SDL_VIDEO_CENTERED"] = "1"
 pygame.init()
@@ -64,9 +65,10 @@ change_linterna = True
 humo = pygame.image.load("imagenes/humo.png").convert_alpha()
 luz_bombero = pygame.image.load("imagenes/linterna.png")
 anim_humo = 0
-bool_humo = True
 
+bool_humo = True
 background_game = pygame.image.load("imagenes/background_game.png").convert()
+hud = pygame.image.load("imagenes/hud.png").convert()
 paredes = []
 
 # Convierte en objetos el nivel. W = wall
@@ -85,11 +87,14 @@ for row in level1:
 # inicializamos personajes
 bombero = Bombero(300,300,paredes)
 #cambiarlo a rescates (ojo con el sonido)
-bombero2 = Bombero(750,50,paredes)
+victima = Victima(paredes)
 
 # start playing the sound and remember on which channel it is being played
 sonido_grito = pygame.mixer.Sound("sonidos/wind1.wav")
 channel = sonido_grito.play()
+
+# correr
+power_correr = 100
 
 # juego loop -----------------------------------------------------------
 while cond_jugar:
@@ -101,13 +106,29 @@ while cond_jugar:
 			cond_jugar = False
 	key = pygame.key.get_pressed()
 	if key[pygame.K_LEFT]:
-		bombero.mover(-3,0)
+		if key[pygame.K_SPACE] and power_correr > 0:
+			bombero.mover(-10,0)
+			power_correr -= 7
+		else:
+			bombero.mover(-3,0)
 	if key[pygame.K_RIGHT]:
-		bombero.mover(3,0)
+		if key[pygame.K_SPACE] and power_correr > 0:
+			bombero.mover(10,0)
+			power_correr -= 7
+		else:
+			bombero.mover(3,0)
 	if key[pygame.K_UP]:
-		bombero.mover(0,-3)
+		if key[pygame.K_SPACE] and power_correr > 0:
+			bombero.mover(0,-10)
+			power_correr -= 7
+		else:
+			bombero.mover(0,-3)
 	if key[pygame.K_DOWN]:
-		bombero.mover(0,3)
+		if key[pygame.K_SPACE] and power_correr > 0:
+			bombero.mover(0,10)
+			power_correr -= 7
+		else:
+			bombero.mover(0,3)
 		
 	filtro = pygame.surface.Surface((1024,700))
 	
@@ -117,7 +138,7 @@ while cond_jugar:
 	
 	# variable que guarda la distancia entre el bombero y quien tiene que rescatar
 	# devuelve (x, y)
-	distancia_persona = bombero.calcular_distancia(bombero2);
+	distancia_persona = bombero.calcular_distancia(victima);
 	esta_cerca = abs(distancia_persona[0]) + abs(distancia_persona[1])
 	# modificacion del sonido segun distancia
 	if (distancia_persona[0] < -150):
@@ -166,17 +187,20 @@ while cond_jugar:
 		bool_humo = True
 		anim_humo = -10
 	
+	if power_correr < 100:
+		power_correr += 0.5
 	
 	# DIBUJAR
 	ventana.blit(background_game,(0,0))
 	for p in paredes:
 		p.dibujar(ventana)
+	bombero.dibujar(ventana)
+	victima.dibujar(ventana)
 	filtro.fill((255,255,255))
 	filtro.blit(luz_bombero,map(lambda x: x-120,bombero.get_pos()))
 	ventana.blit(filtro,(0,0),special_flags=pygame.BLEND_RGBA_SUB)
-	bombero.dibujar(ventana)
-	bombero2.dibujar(ventana)
-	ventana.blit(humo,(anim_humo,0))
+	#ventana.blit(humo,(anim_humo,0))
+	ventana.blit(hud,(0,665))
 
 
 	
