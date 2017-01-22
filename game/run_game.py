@@ -7,6 +7,8 @@ from modulos.bomber import *
 from modulos.paredes import *
 from modulos.levels import *
 from modulos.victim import *
+from modulos.ondas import *
+from pygame.locals import *
 
 os.environ["SDL_VIDEO_CENTERED"] = "1"
 pygame.init()
@@ -23,12 +25,15 @@ seno = 0
 
 cond_menu = True
 cond_jugar = True
+finjuego = True
 background_menu = pygame.image.load("imagenes/background_menu.png")
 
 #musica menu
 pygame.mixer.music.load("sonidos/menu.mp3")
 pygame.mixer.music.play(-1,1)
 sonidoItem = pygame.mixer.Sound("sonidos/item.wav")
+sonidoItem.set_volume(0.1)
+pygame.mixer.music.set_volume(0.1)
 
 # menu loop ----------------------------------------------------------
 while cond_menu:
@@ -95,8 +100,9 @@ bombero_iniciox,bombero_inicioy = 32*2,32*20
 # inicializamos personajes
 bombero = Bombero(bombero_iniciox,bombero_inicioy,paredes)
 victima = Victima(paredes,1)
-
-# correr
+ondas = Ondas(victima.get_pos())
+ver_ondas = False
+tiempo_ondas = 750
 power_correr = 100
 
 # cantidad de victimas rescatadas
@@ -107,17 +113,27 @@ pygame.mixer.music.stop()
 
 pygame.mixer.music.load("sonidos/juego.ogg")
 pygame.mixer.music.play(-1,1)
-pygame.mixer.music.set_volume(0.05)
+pygame.mixer.music.set_volume(0.01)
 
 sonidoLogro = pygame.mixer.Sound("sonidos/victima.wav")
-sonidoLogro.set_volume(0.3)
+sonidoLogro.set_volume(0.05)
 
 sonido_grito = pygame.mixer.Sound("sonidos/latidos.ogg")
 channel = sonido_grito.play(-1)
-sonido_grito.set_volume(1)
+
+rescatados = []
+puntaje = pygame.image.load("imagenes/victima1.png")
+
+contador = 60*1.5
+
+#texto
+fuente = pygame.font.SysFont("verdana", 17)
+
+bool_gameover = True
 
 # juego loop -----------------------------------------------------------
 while cond_jugar:
+	tiempo = pygame.time.get_ticks() / 1000	
 	#procesar eventos
 	for e in pygame.event.get():
 		if e.type == pygame.QUIT:
@@ -127,25 +143,25 @@ while cond_jugar:
 	key = pygame.key.get_pressed()
 	if key[pygame.K_LEFT]:
 		if key[pygame.K_SPACE] and power_correr > 0:
-			bombero.mover(-10,0)
+			bombero.mover(-11,0)
 			power_correr -= 7
 		else:
 			bombero.mover(-3,0)
 	if key[pygame.K_RIGHT]:
 		if key[pygame.K_SPACE] and power_correr > 0:
-			bombero.mover(10,0)
+			bombero.mover(11,0)
 			power_correr -= 7
 		else:
 			bombero.mover(3,0)
 	if key[pygame.K_UP]:
 		if key[pygame.K_SPACE] and power_correr > 0:
-			bombero.mover(0,-10)
+			bombero.mover(0,-11)
 			power_correr -= 7
 		else:
 			bombero.mover(0,-3)
 	if key[pygame.K_DOWN]:
 		if key[pygame.K_SPACE] and power_correr > 0:
-			bombero.mover(0,10)
+			bombero.mover(0,11)
 			power_correr -= 7
 		else:
 			bombero.mover(0,3)
@@ -154,32 +170,51 @@ while cond_jugar:
 	
 	filtro = pygame.surface.Surface((1024,700))
 	
-	#actualizar
+	label = fuente.render(str(contador-tiempo), 2, (255,255,255))
 	reloj.tick(60)
 	bombero.actualizar(paredes)
 	victima.actualizar()
+	ondas.actualizar()
+	tiempo_ondas -= 1
+	if contador-tiempo == 0:
+		cond_jugar = False
+	
+	if tiempo_ondas < 0:
+		ver_ondas = True
 	#chequear colisiones
 	if pygame.sprite.collide_rect(bombero,victima):
 		del victima
 		victima = Victima(paredes,level)
 		rescates += 1
+		rescatados.append(puntaje)
+		del ondas
+		ondas = Ondas(victima.get_pos())
+		ver_ondas = False
+		tiempo_ondas = 100
+		sonidoLogro.play()
 	
 	if rescates == 5:
-		level = 2 
-		rescates = 0
-		bombero.reset(bombero_iniciox,bombero_inicioy)
-		x = y = 0
-		for p in paredes:
-			del p
-		paredes = []
-		for row in level2:
-			for col in row:
-				if col == "W":
-					pp = Pared((x, y))
-					paredes.append(pp)
-				x += 32
-			y += 32
-			x = 0
+		if level == 1:
+			contador += 30
+			rescatados = []
+			level = 2 
+			rescates = 0
+			bombero.reset(bombero_iniciox,bombero_inicioy)
+			x = y = 0
+			for p in paredes:
+				del p
+			paredes = []
+			for row in level2:
+				for col in row:
+					if col == "W":
+						pp = Pared((x, y))
+						paredes.append(pp)
+					x += 32
+				y += 32
+				x = 0
+		else:
+			bool_gameover = False
+			cond_jugar = False
 	# variable que guarda la distancia entre el bombero y quien tiene que rescatar
 	# devuelve (x, y)
 	distancia_persona = bombero.calcular_distancia(victima);
@@ -239,12 +274,40 @@ while cond_jugar:
 		p.dibujar(ventana)
 	bombero.dibujar(ventana)
 	victima.dibujar(ventana)
+	ondas.dibujar(ventana,ver_ondas)
 	filtro.fill((255,255,255))
 	filtro.blit(luz_bombero,map(lambda x: x-120,bombero.get_pos()))
 	ventana.blit(filtro,(0,0),special_flags=pygame.BLEND_RGBA_SUB)
 	ventana.blit(humo,(anim_humo,0))
 	ventana.blit(hud,(0,665))
-
-
+	ventana.blit(label,(875,670))
+	x, y = 32, 670
+	for p in rescatados:
+		ventana.blit(p,(x,y))
+		x += 40
 	
 	pygame.display.flip()
+	
+pygame.mixer.music.stop()
+
+
+while finjuego:
+	#procesar eventos
+	for e in pygame.event.get():
+		if e.type == pygame.QUIT:
+			finjuego = False
+		if e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE:
+			pygame.quit()
+			sys.exit()
+	fin = pygame.image.load("imagenes/pantallafinal.png")
+  	ventana.blit(fin,(0,0))
+  	if bool_gameover:
+		label = fuente.render("GAME OVER BOMBERO MALO", 2, (30,30,30))
+		ventana.blit(label,(375,335))
+		label = fuente.render("USA LAS ONDAS SONORAS GIL!", 2, (30,30,30))
+		ventana.blit(label,(375,450))
+	else:
+		label = fuente.render("GANASTE BOMBERO BUENO", 2, (255,255,255))
+		ventana.blit(label,(375,335))
+  	pygame.display.update()
+	pygame.display.flip()	
