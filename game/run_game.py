@@ -15,7 +15,7 @@ pygame.init()
 medidas_pantalla = (1024,700)
 
 ventana = pygame.display.set_mode(medidas_pantalla)
-pygame.display.set_caption("game")
+pygame.display.set_caption("WAVES STATION")
 reloj = pygame.time.Clock()
 
 #flecha menu
@@ -70,6 +70,24 @@ while cond_menu:
 	pygame.display.update()
 # end menu loop --------------------------------------------------------
 
+cond_instrucciones = True
+inst = pygame.image.load("imagenes/instrucciones.png").convert()
+
+while cond_instrucciones:
+	for e in pygame.event.get():
+		if e.type == pygame.QUIT:
+			pygame.quit()
+			sys.exit()
+		if e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE:
+			pygame.quit()
+			sys.exit()
+		if e.type == pygame.KEYDOWN and e.key == pygame.K_RETURN:
+			cond_instrucciones = False
+		
+		ventana.blit(inst,(0,0))
+		pygame.display.update()
+			
+		
 
 # movimiento bombero
 dx, dy = 0,0
@@ -124,12 +142,13 @@ channel = sonido_grito.play(-1)
 rescatados = []
 puntaje = pygame.image.load("imagenes/victima1.png")
 
-contador = 60*1.5
+contador = 60
 
 #texto
-fuente = pygame.font.SysFont("verdana", 17)
-
+fuente = pygame.font.Font("fuente/fuente.ttf", 22)
+run = fuente.render("RUN", 2, cyan)
 bool_gameover = True
+
 
 # juego loop -----------------------------------------------------------
 while cond_jugar:
@@ -282,6 +301,8 @@ while cond_jugar:
 	ventana.blit(hud,(0,665))
 	ventana.blit(label,(875,670))
 	x, y = 32, 670
+	if power_correr == 100:
+		ventana.blit(run,(500,670))
 	for p in rescatados:
 		ventana.blit(p,(x,y))
 		x += 40
@@ -290,6 +311,15 @@ while cond_jugar:
 	
 pygame.mixer.music.stop()
 
+
+fuente2 = pygame.font.Font("fuente/fuente.ttf",55)
+fuente3 = pygame.font.Font("fuente/fuente.ttf",25)
+if bool_gameover:
+	label = fuente2.render("GAMEOVER", 2, (30,30,30))
+	label2 = fuente3.render("USA LAS ONDAS SONORAS", 2, (30,30,30))
+else:
+	label = fuente2.render("GANASTE", 2, (30,30,30))
+	label2 = fuente3.render("   BOMBERO   BUENO",2,(30,30,30))
 
 while finjuego:
 	#procesar eventos
@@ -301,13 +331,7 @@ while finjuego:
 			sys.exit()
 	fin = pygame.image.load("imagenes/pantallafinal.png")
   	ventana.blit(fin,(0,0))
-  	if bool_gameover:
-		label = fuente.render("GAME OVER BOMBERO MALO", 2, (30,30,30))
-		ventana.blit(label,(375,335))
-		label = fuente.render("USA LAS ONDAS SONORAS GIL!", 2, (30,30,30))
-		ventana.blit(label,(375,450))
-	else:
-		label = fuente.render("GANASTE BOMBERO BUENO", 2, (255,255,255))
-		ventana.blit(label,(375,335))
+	ventana.blit(label,(365,335))
+	ventana.blit(label2,(365,450))
   	pygame.display.update()
 	pygame.display.flip()	
